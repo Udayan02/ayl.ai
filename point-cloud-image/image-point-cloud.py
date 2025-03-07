@@ -36,7 +36,7 @@ def depth_to_point_cloud(img_src: str, depth_src: str, grayscale: bool, focal_le
     # Create meshgrid and calculate camera coordinates
     points_x, points_y = np.meshgrid(np.arange(w), np.arange(h))
     x = (points_x - cx) * depth_map / focal_length
-    y = (points_y - cy) * depth_map / focal_length
+    y = -(points_y - cy) * depth_map / focal_length  # Negating to match camera and real-world alignment
     z = depth_map
 
     # Flatten the coordinates and stack them into a point cloud
