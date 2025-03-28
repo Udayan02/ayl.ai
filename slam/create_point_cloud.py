@@ -1,6 +1,7 @@
 import numpy as np
 import open3d as o3d
 import os
+import matplotlib.pyplot as plt
 
 # Dictionary to store points by timestamp
 points_by_time = {}
@@ -31,3 +32,15 @@ o3d.visualization.draw_geometries([pcd])
 
 # Save the point cloud
 o3d.io.write_point_cloud("store_map.ply", pcd)
+
+
+# 2D Visualization (X-Z plane)
+plt.figure(figsize=(10, 8))
+plt.scatter(all_points[:, 0], all_points[:, 2], s=1, alpha=0.5)
+plt.title('2D Point Cloud (X-Z Plane)')
+plt.xlabel('X axis')
+plt.ylabel('Z axis')
+plt.axis('equal')  # Equal scale for X and Z axes
+plt.grid(True)
+plt.savefig("store_map_2d_xz.png", dpi=300)
+plt.show()
