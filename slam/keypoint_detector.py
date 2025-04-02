@@ -53,6 +53,7 @@ def extract_keypoint_neighborhoods(keypoints_file, video_path, timestamp, output
 
     # Get frame dimensions
     height, width = frame.shape[:2]
+    frame = cv2.resize(frame, (1280, 720))
 
     # For visualization
     viz_frame = frame.copy()
@@ -79,11 +80,13 @@ def extract_keypoint_neighborhoods(keypoints_file, video_path, timestamp, output
             cv2.circle(viz_frame, (x, y), 2, (0, 0, 255), -1)
 
             # Save individual neighborhood
-            cv2.imwrite(f"{output_dir}/keypoint_{i}_neighborhood.png", neighborhood)
+            # cv2.imwrite(f"{output_dir}/keypoint_{i}_neighborhood.png", neighborhood)
 
     # Save visualization frame
-    # cv2.imwrite(f"{output_dir}/frame_{target_frame}_keypoints.png", viz_frame)
-    cv2.imshow("Display", viz_frame)
+    cv2.imwrite(f"{output_dir}/frame_{target_frame}_keypoints.png", viz_frame)
+    # cv2.imshow("Display", viz_frame)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
     print(f"Extracted {len(neighborhoods)} neighborhoods from frame {target_frame}")
     cap.release()
