@@ -190,8 +190,13 @@ else:
     height, width = frame.shape[:2]
     frame = cv2.resize(frame, (1280, 720))
     viz_frame = frame.copy()
+    colors = [(220, 20, 60), (65, 105, 225), (34, 139, 34), (218, 165, 32), (255, 140, 0)]
     for i, (x, y) in enumerate(kmeans.centroids):
         cv2.circle(viz_frame, (x, y), 5, (0, 0, 255), -1)
+    for cluster_idx in range(kmeans.n_clusters):
+        cluster_points = kmeans.keypoints[kmeans.labels == cluster_idx]
+        for point in cluster_points:
+            cv2.circle(viz_frame, (point[0], point[1]), 3, colors[cluster_idx], -1)
 
     cv2.imwrite(f"{output_path}/frame_{target_frame}_centroids.png", viz_frame)
     cap.release()
