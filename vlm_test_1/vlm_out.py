@@ -5,6 +5,7 @@ from PIL import Image
 import torch
 from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
 from transformers import LlavaNextProcessor, LlavaNextForConditionalGeneration
+import argparse
 
 processor = LlavaNextProcessor.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf")
 
@@ -65,8 +66,15 @@ conversation = [
 ]
 prompt = processor.apply_chat_template(conversation, add_generation_prompt=True)
 
-# Replace with your local image path
-local_image_path = "image_path.png" # <--- change this line.
+# Editing to prompt image path when running script in the terminal:
+parser = argparse.ArgumentParser(description="Image to interact with")
+parser.add_argument("--image_path", required=True, help="Path to image", type=str)
+args = parser.parse_args()
+
+local_image_path = args.image_path
+#
+# # Replace with your local image path
+# local_image_path = "image_path.png" # <--- change this line.
 
 # Load the image from the local path
 raw_image = Image.open(local_image_path)
@@ -76,4 +84,4 @@ inputs = processor(images=raw_image, text=prompt, return_tensors='pt').to(0, tor
 output = model.generate(**inputs, max_new_tokens=200, do_sample=False)
 print(processor.decode(output[0][2:], skip_special_tokens=True))
 
-# NOTE: i have not included logic on picking only the top output (topmost tag) given by LLaVA.
+# NOTE: I have not included logic on picking only the top output (topmost tag) given by LLaVA.
