@@ -106,6 +106,27 @@ class KeypointClustering:
 
         return inertias, silhouette_scores
 
+    def get_cluster_bounding_boxes(self):
+        """Get bounding boxes for each cluster."""
+        bounding_boxes = []
+
+        for cluster_idx in range(self.n_clusters):
+            cluster_points = self.keypoints[self.labels == cluster_idx]
+
+            if len(cluster_points) > 0:
+                # Find min and max coordinates for the bounding box
+                min_x = np.min(cluster_points[:, 0])
+                min_y = np.min(cluster_points[:, 1])
+                max_x = np.max(cluster_points[:, 0])
+                max_y = np.max(cluster_points[:, 1])
+
+                # Store as (x_min, y_min, x_max, y_max)
+                bounding_boxes.append((int(min_x), int(min_y), int(max_x), int(max_y)))
+            else:
+                bounding_boxes.append(None)
+
+        return bounding_boxes
+
     def plot_clusters(self, title="Keypoint Clusters"):
         """Plot the clusters and centroids."""
         plt.figure(figsize=(10, 8))
@@ -114,6 +135,20 @@ class KeypointClustering:
         for cluster_idx in range(self.n_clusters):
             cluster_points = self.keypoints[self.labels == cluster_idx]
             plt.scatter(cluster_points[:, 0], cluster_points[:, 1], label=f'Cluster {cluster_idx}')
+
+            # Draw bounding box if cluster has points
+            if len(cluster_points) > 0:
+                min_x = np.min(cluster_points[:, 0])
+                min_y = np.min(cluster_points[:, 1])
+                max_x = np.max(cluster_points[:, 0])
+                max_y = np.max(cluster_points[:, 1])
+
+                # Create rectangle patch
+                width = max_x - min_x
+                height = max_y - min_y
+                rect = plt.Rectangle((min_x, min_y), width, height,
+                                     fill=False, edgecolor='gray', linestyle='--', linewidth=1.5)
+                plt.gca().add_patch(rect)
 
         # Plot the centroids
         plt.scatter(self.centroids[:, 0], self.centroids[:, 1],
@@ -167,6 +202,9 @@ cluster_labels = kmeans.labels
 # Get cluster centroids
 centroids = kmeans.centroids
 
+# Get bounding boxes for each cluster
+bounding_boxes = kmeans.get_cluster_bounding_boxes()
+
 # Visualize results
 kmeans.plot_clusters()
 plt.show()
@@ -191,12 +229,36 @@ else:
     frame = cv2.resize(frame, (1280, 720))
     viz_frame = frame.copy()
     colors = [(220, 20, 60), (65, 105, 225), (34, 139, 34), (218, 165, 32), (255, 140, 0)]
+
+    # Draw centroids
     for i, (x, y) in enumerate(kmeans.centroids):
-        cv2.circle(viz_frame, (x, y), 5, (0, 0, 255), -1)
+        cv2.circle(viz_frame, (int(x), int(y)), 5, (0, 0, 255), -1)
+
+    # Draw keypoints and bounding boxes for each cluster
     for cluster_idx in range(kmeans.n_clusters):
         cluster_points = kmeans.keypoints[kmeans.labels == cluster_idx]
+        cluster_color = colors[cluster_idx % len(colors)]
+
+        # Draw keypoints
         for point in cluster_points:
-            cv2.circle(viz_frame, (point[0], point[1]), 3, colors[cluster_idx], -1)
+            cv2.circle(viz_frame, (int(point[0]), int(point[1])), 3, cluster_color, -1)
+
+        # Draw bounding box
+        if bounding_boxes[cluster_idx]:
+            x_min, y_min, x_max, y_max = bounding_boxes[cluster_idx]
+            # Add padding to make boxes more visible (optional)
+            padding = 5
+            x_min = max(0, x_min - padding)
+            y_min = max(0, y_min - padding)
+            x_max = min(viz_frame.shape[1], x_max + padding)
+            y_max = min(viz_frame.shape[0], y_max + padding)
+
+            # Draw rectangle with thicker line
+            cv2.rectangle(viz_frame, (x_min, y_min), (x_max, y_max), cluster_color, 2)
+
+            # Optionally add cluster label text
+            cv2.putText(viz_frame, f"Cluster {cluster_idx}", (x_min, y_min - 5),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, cluster_color, 2)
 
     cv2.imwrite(f"{output_path}/frame_{target_frame}_centroids.png", viz_frame)
     cap.release()
