@@ -190,7 +190,13 @@ def remove_overlapping_and_contained(detections, iou_threshold=0.5, containment_
     except Exception as e:
         print(f"An error occurred: {e}")"""
 
-image_path = "craft_store_frames/frame_0395.png"
+import argparse
+
+parser = argparse.ArgumentParser(description="Image to interact with")
+parser.add_argument("--img_path", type=str, required=True, help="Path to the image")
+args = parser.parse_args()
+# image_path = "craft_store_frames/frame_0395.png"
+image_path = args.img_path
 
 candidate_labels = ["shelf"]
 
