@@ -1,23 +1,20 @@
 # imports
 import os
-import random
-import numpy as np
-import pandas as pd
+import sys
+import argparse
 
-import cv2
-import matplotlib
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 
 import torch
 from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
-from transformers import LlavaNextProcessor, LlavaNextForConditionalGeneration
 
 # model definition
 model = AutoModelForZeroShotObjectDetection.from_pretrained("google/owlvit-base-patch32")
 processor = AutoProcessor.from_pretrained("google/owlvit-base-patch32")
+
 
 # functions
 def detect_shelf_items(image_path, candidate_labels, threshold):
@@ -55,6 +52,7 @@ def detect_shelf_items(image_path, candidate_labels, threshold):
 
     return detected_items
 
+
 def calculate_iou(box1, box2):
     """
     Calculate the Intersection over Union (IoU) of two bounding boxes.
@@ -89,6 +87,7 @@ def calculate_iou(box1, box2):
     iou = intersection_area / union_area if union_area > 0 else 0
     return iou
 
+
 def is_contained(inner_box, outer_box, containment_threshold=0.9):
     """
     Checks if the inner bounding box is highly contained within the outer bounding box.
@@ -117,6 +116,7 @@ def is_contained(inner_box, outer_box, containment_threshold=0.9):
     if inner_area > 0 and intersection_area / inner_area >= containment_threshold:
         return True
     return False
+
 
 def remove_overlapping_and_contained(detections, iou_threshold=0.5, containment_threshold=0.9):
     """
@@ -163,11 +163,14 @@ def remove_overlapping_and_contained(detections, iou_threshold=0.5, containment_
 
     return filtered_detections
 
-"""def plot_bounding_boxes(image_path, detections):
-    
+
+# Replace the IPython import with a more direct approach
+# from IPython import get_ipython  # Remove this line
+
+def plot_bounding_boxes(image_path, detections):
     try:
         img = Image.open(image_path)
-        fig, ax = plt.subplots(1)
+        fig, ax = plt.subplots(1, figsize=(10, 8))
         ax.imshow(img)
         cmap = cm.get_cmap('tab20', len(detections))
 
@@ -179,18 +182,29 @@ def remove_overlapping_and_contained(detections, iou_threshold=0.5, containment_
             rect = patches.Rectangle((x_min, y_min), width, height, linewidth=2, edgecolor=color, facecolor='none')
             ax.add_patch(rect)
             text = f"{confidence:.2f}%"
-            ax.text(x_min, y_min - 5, text, fontsize=8, color='white', bbox=dict(facecolor=color, edgecolor=color, alpha=0.7))
+            ax.text(x_min, y_min - 5, text, fontsize=8, color='white',
+                    bbox=dict(facecolor=color, edgecolor=color, alpha=0.7))
 
         ax.axis('off')
         plt.tight_layout()
-        plt.show()
+
+        # Always save the visualization
+        output_dir = 'visualizations'
+        os.makedirs(output_dir, exist_ok=True)
+
+        basename = os.path.basename(image_path)
+        name_without_ext = os.path.splitext(basename)[0]
+        output_path = f"{output_dir}/{name_without_ext}_detection.png"
+
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"Visualization saved to: {output_path}")
 
     except FileNotFoundError as e:
         print(f"Error: Image not found: {e}")
     except Exception as e:
-        print(f"An error occurred: {e}")"""
+        print(f"An error occurred: {e}")
 
-import argparse
 
 parser = argparse.ArgumentParser(description="Image to interact with")
 parser.add_argument("--img_path", type=str, required=True, help="Path to the image")
@@ -201,12 +215,12 @@ image_path = args.img_path
 candidate_labels = ["shelf"]
 
 # Detect items
-results = detect_shelf_items(image_path, candidate_labels, 0.06)
+results = detect_shelf_items(image_path, candidate_labels, 0.04)
 
 # Print results
 print("Detected Items:")
 for item in results:
-    print(f"- {item['label']}: Confidence {item['score']*100:.2f}%, Box: {item['box']}")
+    print(f"- {item['label']}: Confidence {item['score'] * 100:.2f}%, Box: {item['box']}")
 
 # Example usage
 # Replace with your actual image path and coordinates
@@ -216,7 +230,8 @@ box_coordinates_list = [r['box'] + [r['score'] * 100] for r in results]
 # Call the function
 filtered_detections = remove_overlapping_and_contained(box_coordinates_list, iou_threshold=0.5)
 print("Filtered Detections:", filtered_detections)
-# plot_bounding_boxes(image_path, filtered_detections)
+plot_bounding_boxes(image_path, filtered_detections)
+
 
 # below code is to crop the bounding boxes and save them in separate images
 def crop_and_save(image_path, bbox_coordinates, output_path="cropped_image.png"):
@@ -241,16 +256,17 @@ def crop_and_save(image_path, bbox_coordinates, output_path="cropped_image.png")
     except Exception as e:
         print(f"An error occurred: {e}")
 
-# may change as required
-os.makedirs('temp_crops', exist_ok = True)
 
-# the logic below will require changes, i just tried to automate it based on my folder names and all, you will have to change it
-i = 1
+# may change as required
+os.makedirs('temp_crops', exist_ok=True)
+
 original_image = image_path  # Replace with the path to your image
-for fd in filtered_detections:
+print(original_image)
+filename = os.path.basename(image_path)
+filename_without_ext = os.path.splitext(filename)[0]
+for i, fd in enumerate(filtered_detections, 1):
     bounding_box = fd[0:-1]
-    cropped_output = f"temp_crops/{image_path[19:-4]}_crop_{i}.png"
-    i += 1
+    cropped_output = f"temp_crops/{filename_without_ext}crop{i}.png"
 
     if os.path.exists(original_image):
         crop_and_save(original_image, bounding_box, cropped_output)
