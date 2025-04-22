@@ -58,7 +58,9 @@ if timestamps is not None and positions is not None:
 plt.title('2D Point Cloud with Trajectory (X-Z Plane)')
 plt.xlabel('X axis (meters)')
 plt.ylabel('Z axis (meters)')
-plt.axis('equal')  # Equal scale for X and Z axes
+plt.xlim(-25, 3) # TODO: Adjust
+plt.ylim(-2, 10) # TODO: Adjust
+# plt.axis('equal')  # Equal scale for X and Z axes
 plt.grid(True)
 plt.legend()
 plt.savefig("combined_map_2d_xz.png", dpi=300)
