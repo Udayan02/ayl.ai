@@ -1,0 +1,94 @@
+%YAML:1.0
+#--------------------------------------------------------------------------------------------
+# System config
+#--------------------------------------------------------------------------------------------
+#System.LoadAtlasFromFile: "SamsungS20Plus_Session"
+#System.SaveAtlasToFile: "SamsungS20Plus_Session"
+
+#--------------------------------------------------------------------------------------------
+# Camera Parameters for Samsung S20+ Main Camera (Video Mode)
+#--------------------------------------------------------------------------------------------
+File.version: "1.0"
+Camera.type: "PinHole"
+
+# Camera calibration and distortion parameters
+Camera1.fx: 1832.95
+Camera1.fy: 1841.45
+Camera1.cx: 940.0
+Camera1.cy: 567.2
+Camera1.k1: -0.1253
+Camera1.k2: 0.5748
+Camera1.p1: -0.00005
+Camera1.p2: -0.0012
+Camera1.k3: -0.8326
+
+Camera.width: 1920
+Camera.height: 1080
+Camera.newWidth: 1280
+Camera.newHeight: 720
+
+Camera.fps: 20
+Camera.RGB: 1
+
+#--------------------------------------------------------------------------------------------
+# ORB Parameters
+#--------------------------------------------------------------------------------------------
+ORBextractor.nFeatures: 6000  # Even more features for better tracking during rotation
+ORBextractor.scaleFactor: 1.15  # Balanced scale factor
+ORBextractor.nLevels: 14  # Good number of levels
+ORBextractor.iniThFAST: 25  # Strong features
+ORBextractor.minThFAST: 8  # Fallback threshold
+
+#--------------------------------------------------------------------------------------------
+# Tracker Parameters - New section to help with U-turns
+#--------------------------------------------------------------------------------------------
+Tracker.TrackWithIMU: 0  # Set to 1 if your device has IMU data available
+
+# Critical parameters for rotation stability
+Tracker.UseMotionModel: 1  # Enable motion model
+Tracker.MatchRatio: 0.8  # Slightly relaxed matching during tracking
+Tracker.ThDepth: 35.0  # Distance threshold for considering points
+Tracker.RotationNThreshold: 4.0  # Adjust for rotation handling (higher = more tolerant of rotation)
+Tracker.TranslationNThreshold: 2.5  # Adjust for translation detection
+
+# These parameters help with rapid view changes (u-turns)
+Tracker.SearchWindowSize: 25  # Wider search window (default is often 15-20)
+Tracker.MaxFramesInMem: 7  # More frames kept in memory for tracking recovery
+Tracker.TemporalWinSize: 15  # Temporal window size for motion averaging
+
+#--------------------------------------------------------------------------------------------
+# Loop Closing Parameters
+#--------------------------------------------------------------------------------------------
+LoopClosing.minScore: 60  # High but not extreme
+LoopClosing.SimThreshold: 0.85  # Strict similarity requirement
+LoopClosing.ConsistentGroupThreshold: 15  # More matches required
+LoopClosing.MatchThreshold: 5  # Strict matching
+
+# Critical for large rotations
+LoopClosing.SearchRadius: 10  # Wider search radius
+LoopClosing.MinNrOfLoopCorrs: 20  # More correspondences required
+
+#--------------------------------------------------------------------------------------------
+# Relocalization Parameters - Critical for recovering after tracking loss
+#--------------------------------------------------------------------------------------------
+Relocalization.MaxFrames: 20  # More frames to consider (helps recover from u-turns)
+Relocalization.MinScore: 45  # Balance between strict and permissive
+Relocalization.PoseOptimizationIterations: 12  # More iterations for pose refinement
+
+# Angle thresholds - helps with extreme angles
+Relocalization.MaxAngle: 60.0  # Maximum angle difference in degrees
+Relocalization.MinInliers: 40  # Minimum inliers for successful relocalization
+
+#--------------------------------------------------------------------------------------------
+# Viewer Parameters
+#---------------------------------------------------------------------------------------------
+Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameLineWidth: 1.0
+Viewer.GraphLineWidth: 0.9
+Viewer.PointSize: 2.0
+Viewer.CameraSize: 0.08
+Viewer.CameraLineWidth: 3.0
+Viewer.ViewpointX: 0.0
+Viewer.ViewpointY: -0.7
+Viewer.ViewpointZ: -1.8
+Viewer.ViewpointF: 500.0

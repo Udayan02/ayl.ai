@@ -1,0 +1,74 @@
+%YAML:1.0
+#--------------------------------------------------------------------------------------------
+# System config
+#--------------------------------------------------------------------------------------------
+# When the variables are commented, the system doesn't load a previous session or not store the current one
+# If the LoadFile doesn't exist, the system give a message and create a new Atlas from scratch
+#System.LoadAtlasFromFile: "SamsungS20Plus_Session"
+# The store file is created from the current session, if a file with the same name exists it is deleted
+#System.SaveAtlasToFile: "SamsungS20Plus_Session"
+
+#--------------------------------------------------------------------------------------------
+# Camera Parameters for Samsung S20+ Main Camera (Video Mode)
+#--------------------------------------------------------------------------------------------
+File.version: "1.0"
+Camera.type: "PinHole"
+
+# Camera calibration and distortion parameters (OpenCV) 
+# Values approximated for Samsung S20+ at 1080p resolution (1920x1080)
+Camera1.fx: 1832.95  #1832.95 # 1580.0
+Camera1.fy: 1841.45  #1841.45 # 1580.0
+Camera1.cx: 940.0 # 960.0  # Half of width
+Camera1.cy: 567.2 # 540.0  # Half of height
+Camera1.k1: -0.1253 # -0.03  # Minimal barrel distortion
+Camera1.k2: 0.5748 #0.008
+Camera1.p1: -0.00005
+Camera1.p2: -0.0012
+Camera1.k3: -0.8326
+
+Camera.width: 1920
+Camera.height: 1080
+Camera.newWidth: 1280
+Camera.newHeight: 720
+
+# Camera frames per second - Samsung S20+ typically records at 30fps by default
+# Note: S20+ can record up to 60fps in 1080p and up to 120fps in certain modes
+Camera.fps: 20
+
+# Color order of the images (0: BGR, 1: RGB. It is ignored if images are grayscale)
+Camera.RGB: 1
+
+#--------------------------------------------------------------------------------------------
+# ORB Parameters
+#--------------------------------------------------------------------------------------------
+# ORB Extractor: Number of features per image
+# Increased for better feature detection with S20+ camera
+ORBextractor.nFeatures: 3000
+
+# ORB Extractor: Scale factor between levels in the scale pyramid 	
+ORBextractor.scaleFactor: 1.3
+
+# ORB Extractor: Number of levels in the scale pyramid	
+ORBextractor.nLevels: 12
+
+# ORB Extractor: Fast threshold
+# Image is divided in a grid. At each cell FAST are extracted imposing a minimum response.
+# Firstly we impose iniThFAST. If no corners are detected we impose a lower value minThFAST
+# You can lower these values if your images have low contrast
+ORBextractor.iniThFAST: 20
+ORBextractor.minThFAST: 5
+
+
+#--------------------------------------------------------------------------------------------
+# Viewer Parameters
+#---------------------------------------------------------------------------------------------
+Viewer.KeyFrameSize: 0.05
+Viewer.KeyFrameLineWidth: 1.0
+Viewer.GraphLineWidth: 0.9
+Viewer.PointSize: 2.0
+Viewer.CameraSize: 0.08
+Viewer.CameraLineWidth: 3.0
+Viewer.ViewpointX: 0.0
+Viewer.ViewpointY: -0.7
+Viewer.ViewpointZ: -1.8
+Viewer.ViewpointF: 500.0
